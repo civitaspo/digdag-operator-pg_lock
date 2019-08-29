@@ -1,0 +1,16 @@
+_export:
+  plugin:
+    repositories:
+      - file://${repos}
+      # - https://jitpack.io
+    dependencies:
+      - pro.civitaspo:digdag-plugin-scala-template:0.0.1
+
++step1:
+  example>: template.txt
+  message: yes
+  path: example.out
+
++step2:
+  hello>: "hello "
+  message: world
