@@ -4,7 +4,7 @@ _export:
       - file://${repos}
       # - https://jitpack.io
     dependencies:
-      - pro.civitaspo:digdag-plugin-scala-template:0.0.1
+      - pro.civitaspo:digdag-operator-pg_lock:0.0.1
 
 +step1:
   example>: template.txt
