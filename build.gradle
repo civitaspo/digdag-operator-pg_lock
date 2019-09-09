@@ -22,11 +22,12 @@ repositories {
 dependencies {
     compile group: 'io.digdag', name: 'digdag-spi', version: digdagVersion
     compile group: 'io.digdag', name: 'digdag-plugin-utils', version: digdagVersion
-    compile group: 'io.digdag', name: 'digdag-core', version: digdagVersion
+//    compile group: 'io.digdag', name: 'digdag-core', version: digdagVersion
     compile group: 'io.digdag', name: 'digdag-standards', version: digdagVersion
 
-    // https://mvnrepository.com/artifact/org.scala-lang/scala-library
     compile group: 'org.scala-lang', name: 'scala-library', version: scalaSemanticVersion
+    compile group: 'org.flywaydb', name: 'flyway-core', version: '6.0.1'
+    compile group: 'com.typesafe.scala-logging', name: "scala-logging_$depScalaVersion", version: '3.9.2'
 
     testCompile group: 'io.digdag', name: 'digdag-tests', version: digdagVersion
 }

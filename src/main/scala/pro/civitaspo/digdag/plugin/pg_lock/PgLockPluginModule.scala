@@ -1,7 +1,7 @@
 package pro.civitaspo.digdag.plugin.pg_lock
 
 
-import com.google.inject.{Binder, Module}
+import com.google.inject.{Binder, Module, Scopes}
 
 
 class PgLockPluginModule
@@ -9,5 +9,9 @@ class PgLockPluginModule
 {
     override def configure(binder: Binder): Unit =
     {
+        binder
+            .bind(classOf[PgLockPostgresqlConnectionPooler])
+            .toProvider(classOf[PgLockPostgresqlConnectionPoolerProvider])
+            .in(Scopes.SINGLETON)
     }
 }

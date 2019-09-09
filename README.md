@@ -22,7 +22,7 @@ _export:
   # This named lock can be used beyond the workflow and the project,
   # that means if another task in another project locks by the name, this task waits until the lock is released.
   pg_lock>: lock-1
-  lock_wait_timeout: 5m
+  wait_timeout: 5m
   _do:
     echo>: hello world
 
@@ -57,9 +57,21 @@ s)?\s*`.
 - **pg_lock.database**: The database name of PostgreSQL. (string, required)
 - **pg_lock.user**: The user name of PostgreSQL. (string, required)
 - **pg_lock.password**: The password of PostgreSQL. (string, optional)
+- **pg_lock.login_timeout**: The timeout duration to wait for establishment of a PostgreSQL database connection. (`DurationParam`, default: `30s`)
+- **pg_lock.socket_timeout**: The timeout duration for socket read operations. If reading from the server takes longer than this value, the connection is closed. This can be used as both a brute force global query timeout and a method of detecting network problems. `0s` means that it is disabled. (`DurationParam`, default: `30m`)
+- **pg_lock.ssl**: (boolean, default: `false`)
+- **pg_lock.connection_timeout**: The timeout duration that a client will wait for a connection from the pool. If this time is exceeded without a connection becoming available, a `SQLException` will be thrown. (`DurationParam`, default: `30s`)
+- **pg_lock.idle_timeout**: The timeout duration that a connection is allowed to sit idle in the pool. `0s` means that idle connections are never removed from the pool. (`DurationParam`, default: `10m`)
+- **pg_lock.validation_timeout**: The timeout duration that the pool will wait for a connection to be validated as alive. (`DurationParam`, default: `5s`)
+- **pg_lock.max_pool_size**: The connection pool size that is allowed to reach, including both idle and in-use connections. (integer, default: `5`)
+- **pg_lock.min_idle_size**: The property controls the minimum number of idle connections in the pool. (integer, default: the same value as **pg_lock.max_pool_size**)
+- **pg_lock.max_life_time**: This property controls the maximum lifetime of a connection in the pool. When a connection reaches this timeout, even if recently used, it will be retired from the pool. An in-use connection will never be retired, only when it is idle will it be removed. (`DurationParam`, default: `30m`)
+- **pg_lock.leak_detection_threshold**: The threshold that a connection can be out of the pool before a message is logged indicating a possible connection leak. `0s` means that it is disabled. (`DurationParam`, default: `0s`)
 - **pg_lock.poll_interval**: The polling interval to wait for getting the named lock. (`DurationParam`, default: `5s`)
 - **pg_lock.min_poll_interval**: The minimum polling interval to wait for getting the named lock. (`DurationParam`, default: `5s`)
 - **pg_lock.max_poll_interval**: The maximum polling interval to wait for getting the named lock. (`DurationParam`, default: `5m`)
+- **pg_lock.schema_migration**: Whether do schema migration or not. (boolean, default: `true`)
+
 
 ## Operator configurations
 
@@ -67,7 +79,7 @@ s)?\s*`.
 - **wait_timeout**: The timeout to wait for getting the named lock. (`DurationParam`, default: `15m`)
 - **expire_in**: The duration that the named lock expires in. (`DurationParam`, default: `"1h"`)
 - **max_count**: The maximum count of the named locks within the namespace. If the different value is defined in another task, throw `ConfigException`. (integer, default: `1`) 
-- **namespace**: The namespace that the named lock can be unique. The valid values are `"site"`, `"project"`, `"workflow"`, `"session"`, and`"attempt"`. (string, default: `"site"`)
+- **namespace**: The namespace that the named lock can be unique. The valid values are `"global"`, `"site"`, `"project"`, `"workflow"`, `"session"`, and`"attempt"`. (string, default: `"site"`)
 - **_do**: The definition of subtasks with the named lock. (config, required) 
 
 # Development

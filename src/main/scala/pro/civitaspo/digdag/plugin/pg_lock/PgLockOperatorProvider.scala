@@ -1,8 +1,9 @@
 package pro.civitaspo.digdag.plugin.pg_lock
 
 
-import java.util.{Arrays => JArrays, List => JList}
+import java.util.{List => JList}
 
+import com.google.common.collect.ImmutableList
 import com.google.inject.Inject
 import io.digdag.client.config.Config
 import io.digdag.spi.{OperatorFactory, OperatorProvider}
@@ -13,14 +14,13 @@ class PgLockOperatorProvider
 {
 
     @Inject protected var systemConfig: Config = null
+    @Inject protected var pooler: PgLockPostgresqlConnectionPooler = null
 
     override def get(): JList[OperatorFactory] =
     {
-        val off = PgLockOperatorFactoryFactory(systemConfig = systemConfig)
-
-        JArrays.asList(
-            off.createFactory("pg_lock", classOf[PgLockOperator]),
-            off.createFactory("pg_lock_release", classOf[PgLockReleaseOperator])
-            )
+        ImmutableList.of(
+            new PgLockOperatorFactory(systemConfig, pooler),
+            new PgLockReleaseOperatorFactory(systemConfig, pooler)
+        )
     }
 }
