@@ -22,8 +22,6 @@ repositories {
 dependencies {
     compile group: 'io.digdag', name: 'digdag-spi', version: digdagVersion
     compile group: 'io.digdag', name: 'digdag-plugin-utils', version: digdagVersion
-//    compile group: 'io.digdag', name: 'digdag-core', version: digdagVersion
-    compile group: 'io.digdag', name: 'digdag-standards', version: digdagVersion
 
     compile group: 'org.scala-lang', name: 'scala-library', version: scalaSemanticVersion
     compile group: 'org.flywaydb', name: 'flyway-core', version: '6.0.1'
@@ -37,6 +35,7 @@ shadowJar {
     dependencies {
         exclude(dependency('io.digdag:.*'))
         exclude(dependency('.*:jackson.*:.*'))
+        exclude(dependency('com.google.inject:.*:.*'))
     }
 }
 
