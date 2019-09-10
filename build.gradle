@@ -23,6 +23,11 @@ dependencies {
     compile group: 'io.digdag', name: 'digdag-spi', version: digdagVersion
     compile group: 'io.digdag', name: 'digdag-plugin-utils', version: digdagVersion
 
+    // Follow digdag core dependencies. These are used only when compiling.
+    // ref. https://github.com/treasure-data/digdag/tree/v0.9.39/digdag-core/build.gradle#L16-L17
+    compile group: 'org.jdbi', name: 'jdbi', version: '2.75'
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '2.4.7'
+
     compile group: 'org.scala-lang', name: 'scala-library', version: scalaSemanticVersion
     compile group: 'org.flywaydb', name: 'flyway-core', version: '6.0.1'
     compile group: 'com.typesafe.scala-logging', name: "scala-logging_$depScalaVersion", version: '3.9.2'
@@ -34,8 +39,10 @@ shadowJar {
     classifier = null
     dependencies {
         exclude(dependency('io.digdag:.*'))
-        exclude(dependency('.*:jackson.*:.*'))
+        exclude(dependency('com.fasterxml.jackson.*:.*:.*'))
         exclude(dependency('com.google.inject:.*:.*'))
+        exclude(dependency('org.jdbi:jdbi:.*'))
+        exclude(dependency('com.zaxxer:HikariCP:.*'))
     }
 }
 
