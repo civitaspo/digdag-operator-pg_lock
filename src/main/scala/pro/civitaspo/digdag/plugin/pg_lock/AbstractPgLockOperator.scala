@@ -29,4 +29,5 @@ abstract class AbstractPgLockOperator(operatorName: String,
     protected val sessionUuid: String = params.get("session_uuid", classOf[String])
 
 
+    protected val hasher: PgLockHasher = PgLockHasher(systemConfig.hashSeedForAdvisoryLock)
 }

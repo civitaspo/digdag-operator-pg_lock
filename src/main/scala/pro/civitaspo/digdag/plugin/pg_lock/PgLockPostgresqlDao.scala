@@ -8,6 +8,20 @@ import org.skife.jdbi.v2.sqlobject.{Bind, SqlQuery, SqlUpdate}
 
 trait PgLockPostgresqlDao
 {
+    @SqlQuery(
+        """
+          | SELECT pg_try_advisory_lock(:key1, :key2)
+        """.stripMargin)
+    def pgTryAdvisoryLock(@Bind("key1") key1: Int,
+                          @Bind("key2") key2: Int): Boolean
+
+    @SqlQuery(
+        """
+          | SELECT pg_advisory_unlock(:key1, :key2)
+        """.stripMargin)
+    def pgAdvisoryUnlock(@Bind("key1") key1: Int,
+                         @Bind("key2") key2: Int): Boolean
+
     @SqlUpdate("DELETE FROM digdag_pg_locks WHERE expires_on <= now()")
     def releaseExpiredLocks(): Unit
 
@@ -17,7 +31,6 @@ trait PgLockPostgresqlDao
           |  WHERE namespace_type = :namespace_type
           |    AND namespace_value = :namespace_value
           |    AND name = :name
-          |    FOR UPDATE
         """)
     def countLocksInNamespace(@Bind("namespace_type") namespaceType: String,
                               @Bind("namespace_value") namespaceValue: String,
@@ -29,7 +42,6 @@ trait PgLockPostgresqlDao
           |  WHERE namespace_type = :namespace_type
           |    AND namespace_value = :namespace_value
           |    AND name = :name
-          |    FOR UPDATE
         """)
     def varietyMaxCountsForLocksInNamespace(@Bind("namespace_type") namespaceType: String,
                                             @Bind("namespace_value") namespaceValue: String,

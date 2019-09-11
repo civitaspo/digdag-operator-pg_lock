@@ -71,6 +71,7 @@ s)?\s*`.
 - **pg_lock.min_poll_interval**: The minimum polling interval to wait for getting the named lock. (`DurationParam`, default: `5s`)
 - **pg_lock.max_poll_interval**: The maximum polling interval to wait for getting the named lock. (`DurationParam`, default: `5m`)
 - **pg_lock.schema_migration**: Whether do schema migration or not. (boolean, default: `true`)
+- **pg_lock.hash_seed_for_advisory_lock**: The seed to hash strings with "MurmurHash 3" algorithm when using `pg_try_advisory_lock`. This value is the `seed` of `scala.util.hashing.MurmurHash3.stringHash(str: String, seed: Int)` and is used as `pg_try_advisory_lock(MurmurHash3.stringHash("digdag", seed), MurmurHash3.stringHash("the lock name", seed))`. (integer, default: `-137723950` (the same as `scala.util.hashing.MurmurHash3.stringSeed`))
 
 
 ## Operator configurations

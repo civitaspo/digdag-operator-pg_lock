@@ -141,6 +141,11 @@ case class PgLockOperatorSystemConfig(systemConfig: Config)
         systemConfig.get(s"$CONFIG_KEY_PREFIX.schema_migration", classOf[Boolean], true)
     }
 
+    def hashSeedForAdvisoryLock: Int =
+    {
+        systemConfig.get(s"$CONFIG_KEY_PREFIX.hash_seed_for_advisory_lock", classOf[Int], -137723950)
+    }
+
     def opts: Map[String, String] =
     {
         val optsKeyPrefix: String = s"$CONFIG_KEY_PREFIX.opts."
