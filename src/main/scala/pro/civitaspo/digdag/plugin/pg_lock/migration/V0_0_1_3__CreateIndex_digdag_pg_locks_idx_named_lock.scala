@@ -16,7 +16,8 @@ class V0_0_1_3__CreateIndex_digdag_pg_locks_idx_named_lock
               | ON digdag_pg_locks(
               |     namespace_type,
               |     namespace_value,
-              |     name
+              |     name,
+              |     owner_site_id
               | )
             """.stripMargin)) { stmt =>
 

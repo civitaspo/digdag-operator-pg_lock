@@ -27,32 +27,60 @@ trait PgLockPostgresqlDao
 
     @SqlQuery(
         """
-          | SELECT COUNT(1) FROM digdag_pg_locks
-          |  WHERE namespace_type = :namespace_type
-          |    AND namespace_value = :namespace_value
-          |    AND name = :name
-        """)
-    def countLocksInNamespace(@Bind("namespace_type") namespaceType: String,
-                              @Bind("namespace_value") namespaceValue: String,
-                              @Bind("name") name: String): Int
+          | SELECT COUNT(1)
+          |   FROM digdag_pg_locks
+          |  WHERE namespace_type = 'global'
+          |    AND namespace_value = 'global'
+          |    AND name = ':name'
+        """.stripMargin)
+    def countGlobalNamedLocks(@Bind("name") name: String): Int
 
     @SqlQuery(
         """
-          | SELECT distinct max_count FROM digdag_pg_locks
+          | SELECT COUNT(1)
+          |   FROM digdag_pg_locks
           |  WHERE namespace_type = :namespace_type
           |    AND namespace_value = :namespace_value
           |    AND name = :name
-        """)
-    def varietyMaxCountsForLocksInNamespace(@Bind("namespace_type") namespaceType: String,
-                                            @Bind("namespace_value") namespaceValue: String,
-                                            @Bind("name") name: String): JList[Int]
+          |    AND owner_site_id = :owner_site_id
+        """.stripMargin)
+    def countNamedLocks(@Bind("namespace_type") namespaceType: String,
+                        @Bind("namespace_value") namespaceValue: String,
+                        @Bind("name") name: String,
+                        @Bind("owner_site_id") ownerSiteId: Int): Int
+
+    @SqlQuery(
+        """
+          | SELECT DISTINCT max_count
+          |   FROM digdag_pg_locks
+          |  WHERE namespace_type = 'global'
+          |    AND namespace_value = 'global'
+          |    AND name = :name
+        """.stripMargin)
+    def distinctMaxCountGlobalNamedLocks(@Bind("name") name: String): JList[Int]
+
+    @SqlQuery(
+        """
+          | SELECT DISTINCT max_count
+          |   FROM digdag_pg_locks
+          |  WHERE namespace_type = :namespace_type
+          |    AND namespace_value = :namespace_value
+          |    AND name = :name
+          |    AND owner_site_id = :owner_site_id
+        """.stripMargin)
+    def distinctMaxCountNamedLocks(@Bind("namespace_type") namespaceType: String,
+                                   @Bind("namespace_value") namespaceValue: String,
+                                   @Bind("name") name: String,
+                                   @Bind("owner_site_id") ownerSiteId: Int): JList[Int]
 
 
     @SqlUpdate(
         """
-          | INSERT INTO digdag_pg_locks(id
-          |     namespace_type, 
+          | INSERT INTO digdag_pg_locks(
+          |     id
+          |     namespace_type,
           |     namespace_value,
+          |     owner_site_id,
           |     owner_attempt_id,
           |     name,
           |     max_count,
@@ -62,12 +90,13 @@ trait PgLockPostgresqlDao
           | )
           | VALUES (
           |     :id,
-          |     :namespace_type, 
+          |     :namespace_type,
           |     :namespace_value,
+          |     :owner_site_id,
           |     :owner_attempt_id,
           |     :name,
           |     :max_count,
-          |     now() + INTERVAL　':expires_on' SECOND,
+          |     now() + INTERVAL　:expires_on SECOND,
           |     now(),
           |     now()
           | )
@@ -76,15 +105,11 @@ trait PgLockPostgresqlDao
     def lock(@Bind("id") id: UUID,
              @Bind("namespace_type") namespaceType: String,
              @Bind("namespace_value") namespaceValue: String,
-             @Bind("owner_attempt_id") ownerAttemptId: String,
+             @Bind("owner_site_id") ownerSiteId: Int,
+             @Bind("owner_attempt_id") ownerAttemptId: Long,
              @Bind("name") name: String,
              @Bind("max_count") maxCount: Int,
              @Bind("expire_in_seconds") expireInSeconds: Int): Int
-
-    def generateRandomUUID(): UUID =
-    {
-        UUID.randomUUID()
-    }
 
     @SqlUpdate("DELETE FROM digdag_pg_locks WHERE id = :id")
     def release(@Bind("id") id: UUID): Unit
