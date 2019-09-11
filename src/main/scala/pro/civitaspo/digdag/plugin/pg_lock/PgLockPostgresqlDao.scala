@@ -14,24 +14,24 @@ trait PgLockPostgresqlDao
     @SqlQuery(
         """
           | SELECT COUNT(1) FROM digdag_pg_locks
-          |  WHERE namespace = :namespace
+          |  WHERE namespace_type = :namespace_type
           |    AND namespace_value = :namespace_value
           |    AND name = :name
           |    FOR UPDATE
         """)
-    def countLocksInNamespace(@Bind("namespace") namespace: String,
+    def countLocksInNamespace(@Bind("namespace_type") namespaceType: String,
                               @Bind("namespace_value") namespaceValue: String,
                               @Bind("name") name: String): Int
 
     @SqlQuery(
         """
           | SELECT distinct max_count FROM digdag_pg_locks
-          |  WHERE namespace = :namespace
+          |  WHERE namespace_type = :namespace_type
           |    AND namespace_value = :namespace_value
           |    AND name = :name
           |    FOR UPDATE
         """)
-    def varietyMaxCountsForLocksInNamespace(@Bind("namespace") namespace: String,
+    def varietyMaxCountsForLocksInNamespace(@Bind("namespace_type") namespaceType: String,
                                             @Bind("namespace_value") namespaceValue: String,
                                             @Bind("name") name: String): JList[Int]
 
@@ -39,7 +39,7 @@ trait PgLockPostgresqlDao
     @SqlUpdate(
         """
           | INSERT INTO digdag_pg_locks(id
-          |     namespace,
+          |     namespace_type, 
           |     namespace_value,
           |     owner_attempt_id,
           |     name,
@@ -50,7 +50,7 @@ trait PgLockPostgresqlDao
           | )
           | VALUES (
           |     :id,
-          |     :namespace,
+          |     :namespace_type, 
           |     :namespace_value,
           |     :owner_attempt_id,
           |     :name,
@@ -62,7 +62,7 @@ trait PgLockPostgresqlDao
           |
         """)
     def lock(@Bind("id") id: UUID,
-             @Bind("namespace") namespace: String,
+             @Bind("namespace_type") namespaceType: String,
              @Bind("namespace_value") namespaceValue: String,
              @Bind("owner_attempt_id") ownerAttemptId: String,
              @Bind("name") name: String,

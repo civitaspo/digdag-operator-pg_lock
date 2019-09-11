@@ -14,7 +14,7 @@ class V0_0_1_3__CreateIndex_digdag_pg_locks_idx_named_lock
             """
               |CREATE INDEX digdag_pg_locks_idx_named_locks
               | ON digdag_pg_locks(
-              |     namespace,
+              |     namespace_type,
               |     namespace_value,
               |     name
               | )
