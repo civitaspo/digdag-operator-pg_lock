@@ -14,8 +14,7 @@ class V0_0_1_1__CreateTable_digdag_pg_locks extends BaseJavaMigration
               |CREATE TABLE digdag_pg_locks (
               |    id                UUID    NOT NULL,
               |    namespace_type    TEXT    NOT NULL,
-              |    namespace_value   TEXT    NOT NULL,
-              |    owner_site_id     INTEGER NOT NULL,
+              |    namespace_value   UUID    NOT NULL,
               |    owner_attempt_id  BIGINT  NOT NULL,
               |    name              TEXT    NOT NULL,
               |    max_count         INTEGER NOT NULL DEFAULT 1,

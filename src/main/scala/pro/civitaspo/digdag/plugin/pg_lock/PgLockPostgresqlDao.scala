@@ -29,35 +29,13 @@ trait PgLockPostgresqlDao
         """
           | SELECT COUNT(1)
           |   FROM digdag_pg_locks
-          |  WHERE namespace_type = 'global'
-          |    AND namespace_value = 'global'
-          |    AND name = ':name'
-        """.stripMargin)
-    def countGlobalNamedLocks(@Bind("name") name: String): Int
-
-    @SqlQuery(
-        """
-          | SELECT COUNT(1)
-          |   FROM digdag_pg_locks
           |  WHERE namespace_type = :namespace_type
           |    AND namespace_value = :namespace_value
           |    AND name = :name
-          |    AND owner_site_id = :owner_site_id
         """.stripMargin)
     def countNamedLocks(@Bind("namespace_type") namespaceType: String,
                         @Bind("namespace_value") namespaceValue: String,
-                        @Bind("name") name: String,
-                        @Bind("owner_site_id") ownerSiteId: Int): Int
-
-    @SqlQuery(
-        """
-          | SELECT DISTINCT max_count
-          |   FROM digdag_pg_locks
-          |  WHERE namespace_type = 'global'
-          |    AND namespace_value = 'global'
-          |    AND name = :name
-        """.stripMargin)
-    def distinctMaxCountGlobalNamedLocks(@Bind("name") name: String): JList[Int]
+                        @Bind("name") name: String): Int
 
     @SqlQuery(
         """
@@ -66,12 +44,10 @@ trait PgLockPostgresqlDao
           |  WHERE namespace_type = :namespace_type
           |    AND namespace_value = :namespace_value
           |    AND name = :name
-          |    AND owner_site_id = :owner_site_id
         """.stripMargin)
     def distinctMaxCountNamedLocks(@Bind("namespace_type") namespaceType: String,
                                    @Bind("namespace_value") namespaceValue: String,
-                                   @Bind("name") name: String,
-                                   @Bind("owner_site_id") ownerSiteId: Int): JList[Int]
+                                   @Bind("name") name: String): JList[Int]
 
 
     @SqlUpdate(
@@ -80,7 +56,6 @@ trait PgLockPostgresqlDao
           |     id
           |     namespace_type,
           |     namespace_value,
-          |     owner_site_id,
           |     owner_attempt_id,
           |     name,
           |     max_count,
@@ -92,7 +67,6 @@ trait PgLockPostgresqlDao
           |     :id,
           |     :namespace_type,
           |     :namespace_value,
-          |     :owner_site_id,
           |     :owner_attempt_id,
           |     :name,
           |     :max_count,
@@ -105,7 +79,6 @@ trait PgLockPostgresqlDao
     def lock(@Bind("id") id: UUID,
              @Bind("namespace_type") namespaceType: String,
              @Bind("namespace_value") namespaceValue: String,
-             @Bind("owner_site_id") ownerSiteId: Int,
              @Bind("owner_attempt_id") ownerAttemptId: Long,
              @Bind("name") name: String,
              @Bind("max_count") maxCount: Int,
