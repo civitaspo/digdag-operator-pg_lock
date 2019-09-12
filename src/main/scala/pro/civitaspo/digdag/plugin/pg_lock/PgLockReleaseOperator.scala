@@ -12,6 +12,6 @@ class PgLockReleaseOperator(operatorName: String,
 {
     override def runTask(): TaskResult =
     {
-        TaskResult.empty(cf)
+        TaskResult.empty(getConfigFactory)
     }
 }

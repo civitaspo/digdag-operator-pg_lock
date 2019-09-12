@@ -1,11 +1,8 @@
 package pro.civitaspo.digdag.plugin.pg_lock
 
 
-import java.nio.charset.StandardCharsets
-import java.util.UUID
-
 import com.typesafe.scalalogging.LazyLogging
-import io.digdag.client.config.{Config, ConfigException, ConfigFactory}
+import io.digdag.client.config.{Config, ConfigFactory}
 import io.digdag.spi.OperatorContext
 import io.digdag.util.BaseOperator
 
@@ -17,8 +14,13 @@ abstract class AbstractPgLockOperator(operatorName: String,
     extends BaseOperator(context)
         with LazyLogging
 {
-    protected val cf: ConfigFactory = request.getConfig.getFactory
-    protected val params: Config = {
+    protected def getConfigFactory: ConfigFactory =
+    {
+        request.getConfig.getFactory
+    }
+
+    protected def getParams: Config =
+    {
         val elems: Seq[String] = operatorName.split("\\.").toSeq
         elems.indices.foldLeft(request.getConfig) { (p: Config,
                                                      idx: Int) =>

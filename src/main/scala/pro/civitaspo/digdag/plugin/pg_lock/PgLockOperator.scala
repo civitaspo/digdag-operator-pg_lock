@@ -8,6 +8,8 @@ import io.digdag.client.config.{Config, ConfigException}
 import io.digdag.spi.{OperatorContext, TaskResult}
 import io.digdag.util.DurationParam
 
+import scala.util.chaining._
+
 
 class PgLockOperator(operatorName: String,
                      context: OperatorContext,
@@ -74,29 +76,31 @@ class PgLockOperator(operatorName: String,
 
     override def runTask(): TaskResult =
     {
-        val operatorConfig: PgLockOperatorConfig = PgLockOperatorConfig(
-            lockName = params.get("_command", classOf[String]),
-            waitTimeout = params.get("wait_timeout",
-                                     classOf[DurationParam],
-                                     DurationParam.parse("15m")
-                                     ),
-            expire_in = params.get("expire_in",
-                                   classOf[DurationParam],
-                                   DurationParam.parse("1h")
-                                   ),
-            max_count = params.get("max_count", classOf[Int], 1),
-            namespace = LockNamespace(params.get("namespace",
-                                                 classOf[String],
-                                                 "site"
-                                                 )),
-            doConfig = params.get("_do", classOf[Config])
-            )
+        val operatorConfig: PgLockOperatorConfig = getParams.pipe { params =>
+            PgLockOperatorConfig(
+                lockName = params.get("_command", classOf[String]),
+                waitTimeout = params.get("wait_timeout",
+                                         classOf[DurationParam],
+                                         DurationParam.parse("15m")
+                                         ),
+                expire_in = params.get("expire_in",
+                                       classOf[DurationParam],
+                                       DurationParam.parse("1h")
+                                       ),
+                max_count = params.get("max_count", classOf[Int], 1),
+                namespace = LockNamespace(getParams.get("namespace",
+                                                        classOf[String],
+                                                        "site"
+                                                        )),
+                doConfig = params.get("_do", classOf[Config])
+                )
+        }
 
         runTask(operatorConfig)
     }
 
     protected def runTask(operatorConfig: PgLockOperatorConfig): TaskResult =
     {
-        TaskResult.empty(cf)
+        TaskResult.empty(getConfigFactory)
     }
 }
