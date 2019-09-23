@@ -80,7 +80,7 @@ class PgLockOperator(context: OperatorContext,
                     waitUntilAffordingLockableCount(dao)
 
                     val lockId: UUID = UUID.randomUUID()
-                    acquireLock(dao, lockId)
+                    doLock(dao, lockId)
                     pgClient.commit()
 
                     buildTaskResult(lockId)
@@ -153,20 +153,20 @@ class PgLockOperator(context: OperatorContext,
                     namespaceValue = namespace.getValue,
                     name = name
                     )
-                if ((cnt + 1) <= limit) true
-                else {
-                    logger.info(
-                        s"Current lock count=$cnt is not enough." +
-                            s" (limit: $limit, namespace_type: ${namespace.getType}," +
-                            s" namespace_value: ${namespace.getValue}, name: $name)"
-                        )
-                    false
+                ((cnt + 1) <= limit).tap { isLockable =>
+                    if (!isLockable) {
+                        logger.info(
+                            s"Wait because current lock count=$cnt reaches the limit=$limit." +
+                                s" (namespace_type: ${namespace.getType}," +
+                                s" namespace_value: ${namespace.getValue}, name: $name)"
+                            )
+                    }
                 }
             })
         }
 
-        protected def acquireLock(dao: PgLockPgDao,
-                                  lockId: UUID): Unit =
+        protected def doLock(dao: PgLockPgDao,
+                             lockId: UUID): Unit =
         {
             dao.insertDigdagPgLock(
                 id = lockId,

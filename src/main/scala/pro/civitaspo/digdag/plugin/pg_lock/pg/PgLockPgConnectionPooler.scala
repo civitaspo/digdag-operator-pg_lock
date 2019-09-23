@@ -8,6 +8,8 @@ import com.typesafe.scalalogging.LazyLogging
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import org.skife.jdbi.v2.{DBI, Handle}
 import org.skife.jdbi.v2.exceptions.TransactionFailedException
+import org.skife.jdbi.v2.logging.SLF4JLog
+import org.skife.jdbi.v2.logging.SLF4JLog.Level
 
 import scala.util.chaining._
 
@@ -29,6 +31,7 @@ class PgLockPgConnectionPooler(config: PgLockPgConfig)
                 case ex: SQLException =>
                     throw new TransactionFailedException("Failed to set auto commit: " + false, ex)
             }
+            handle.setSQLLog(new SLF4JLog(logger.underlying, Level.DEBUG))
             handle.begin()
         }
     }
