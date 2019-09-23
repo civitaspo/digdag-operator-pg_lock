@@ -4,10 +4,12 @@ package pro.civitaspo.digdag.plugin.pg_lock
 import com.google.inject.{Binder, Scopes}
 import com.typesafe.scalalogging.LazyLogging
 import io.digdag.spi.{OperatorProvider, Plugin}
+import pro.civitaspo.digdag.plugin.pg_lock.pg.{PgLockPgConnectionPooler, PgLockPgConnectionPoolerProvider}
 
 
 class PgLockPlugin
-    extends Plugin with LazyLogging
+    extends Plugin
+        with LazyLogging
 {
     override def getServiceProvider[T](`type`: Class[T]): Class[_ <: T] =
     {
@@ -20,8 +22,8 @@ class PgLockPlugin
     {
         super.configureBinder(`type`, binder)
         binder
-            .bind(classOf[PgLockPostgresqlConnectionPooler])
-            .toProvider(classOf[PgLockPostgresqlConnectionPoolerProvider])
+            .bind(classOf[PgLockPgConnectionPooler])
+            .toProvider(classOf[PgLockPgConnectionPoolerProvider])
             .in(Scopes.SINGLETON)
     }
 }

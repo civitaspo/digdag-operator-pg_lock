@@ -4,7 +4,7 @@ _export:
       - file://${repos}
       # - https://jitpack.io
     dependencies:
-      - pro.civitaspo:digdag-operator-pg_lock:0.0.1
+      - pro.civitaspo:digdag-operator-pg_lock:0.0.1.pre
 
 +lock-with:
   # This case shows "Hello A" before "Hello B".
@@ -14,21 +14,24 @@ _export:
     wait_timeout: 5m
     _do:
       +sleep:
-        sh>: sleep 5
+        sh>: sleep 10
       +echo:
         echo>: Hello A
   +b:
     pg_lock>: lock-1
     wait_timeout: 5m
     _do:
-      echo>: Hello B
+      +sleep:
+        sh>: sleep 10
+      +echo:
+        echo>: Hello B
 
 +control-parallelism:
   loop>: 10
   _parallel: true
   _do:
     pg_lock>: lock-2
-    max_count: 2
+    limit: 2
     _do:
       +sleep:
         sh>: sleep 5

@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableList
 import com.google.inject.Inject
 import io.digdag.client.config.Config
 import io.digdag.spi.{OperatorFactory, OperatorProvider}
+import pro.civitaspo.digdag.plugin.pg_lock.lock.PgLockOperatorFactory
+import pro.civitaspo.digdag.plugin.pg_lock.pg.PgLockPgConnectionPooler
+import pro.civitaspo.digdag.plugin.pg_lock.unlock.PgUnlockOperatorFactory
 
 
 class PgLockOperatorProvider
@@ -14,13 +17,13 @@ class PgLockOperatorProvider
 {
 
     @Inject protected var systemConfig: Config = null
-    @Inject protected var pooler: PgLockPostgresqlConnectionPooler = null
+    @Inject protected var pooler: PgLockPgConnectionPooler = null
 
     override def get(): JList[OperatorFactory] =
     {
         ImmutableList.of(
-            new PgLockOperatorFactory(systemConfig, pooler),
-            new PgLockReleaseOperatorFactory(systemConfig, pooler)
-        )
+            PgLockOperatorFactory(systemConfig, pooler),
+            PgUnlockOperatorFactory(systemConfig, pooler)
+            )
     }
 }

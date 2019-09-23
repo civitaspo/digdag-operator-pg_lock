@@ -1,4 +1,5 @@
-package pro.civitaspo.digdag.plugin.pg_lock
+package pro.civitaspo.digdag.plugin.pg_lock.pg
+
 
 import java.sql.SQLException
 
@@ -11,12 +12,12 @@ import org.skife.jdbi.v2.exceptions.TransactionFailedException
 import scala.util.chaining._
 
 
-class PgLockPostgresqlConnectionPooler(systemConfig: PgLockOperatorSystemConfig)
+class PgLockPgConnectionPooler(config: PgLockPgConfig)
     extends LazyLogging
 {
     private val hikari: HikariDataSource = createDataSourceWithConnectionPool().tap { hikari =>
         // TODO: ignore errors?
-        if (systemConfig.schemaMigration) PgLockPostgresqlDatabaseMigrator(hikari).migrate()
+        if (config.schemaMigration) PgLockPgDatabaseMigrator(config, hikari).migrate()
     }
     private val dbi: DBI = new DBI(hikari)
 
@@ -44,26 +45,26 @@ class PgLockPostgresqlConnectionPooler(systemConfig: PgLockOperatorSystemConfig)
     private def createDataSourceWithConnectionPool(): HikariDataSource =
     {
         val hc: HikariConfig = new HikariConfig()
-        hc.setJdbcUrl(systemConfig.jdbcUrl)
-        hc.setDriverClassName(systemConfig.driverClassName)
-        hc.setDataSourceProperties(systemConfig.jdbcProperties)
+        hc.setJdbcUrl(config.jdbcUrl)
+        hc.setDriverClassName(config.driverClassName)
+        hc.setDataSourceProperties(config.jdbcProperties)
         hc.setConnectionTimeout(
-            systemConfig.connectionTimeout.getDuration.toMillis
+            config.connectionTimeout.getDuration.toMillis
             )
         hc.setIdleTimeout(
-            systemConfig.idleTimeout.getDuration.toMillis
+            config.idleTimeout.getDuration.toMillis
             )
         hc.setValidationTimeout(
-            systemConfig.validationTimeout.getDuration.toMillis
+            config.validationTimeout.getDuration.toMillis
             )
         hc.setLeakDetectionThreshold(
-            systemConfig.leakDetectionThreshold.getDuration.toMillis
+            config.leakDetectionThreshold.getDuration.toMillis
             )
         hc.setMaxLifetime(
-            systemConfig.maxLifeTime.getDuration.toMillis
+            config.maxLifeTime.getDuration.toMillis
             )
-        hc.setMaximumPoolSize(systemConfig.maxPoolSize)
-        hc.setMinimumIdle(systemConfig.minIdleSize)
+        hc.setMaximumPoolSize(config.maxPoolSize)
+        hc.setMinimumIdle(config.minIdleSize)
 
         // Here should not set connectionTestQuery (that overrides isValid) because
         // ThreadLocalTransactionManager.commit assumes that Connection.isValid returns

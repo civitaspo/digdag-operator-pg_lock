@@ -1,4 +1,4 @@
-package pro.civitaspo.digdag.plugin.pg_lock.migration
+package pro.civitaspo.digdag.plugin.pg_lock.pg.migration
 
 import org.flywaydb.core.api.migration.{BaseJavaMigration, Context}
 

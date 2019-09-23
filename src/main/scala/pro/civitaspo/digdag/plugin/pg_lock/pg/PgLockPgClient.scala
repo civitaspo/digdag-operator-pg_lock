@@ -1,21 +1,20 @@
-package pro.civitaspo.digdag.plugin.pg_lock
+package pro.civitaspo.digdag.plugin.pg_lock.pg
 
 
 import org.skife.jdbi.v2.Handle
 
 
-case class PgLockPostgresqlClient(handle: Handle)
+case class PgLockPgClient(handle: Handle)
     extends AutoCloseable
 {
     private var doneTransactionOnce: Boolean = false
 
-    def transaction(f: PgLockPostgresqlDao => Unit): Unit =
+    def transaction[A](f: PgLockPgDao => A): A =
     {
         if (doneTransactionOnce) throw new IllegalStateException("PgLockPostgresqlClient cannot execute transaction twice.")
         doneTransactionOnce = true
         try {
-            f(handle.attach(classOf[PgLockPostgresqlDao]))
-            commit()
+            f(handle.attach(classOf[PgLockPgDao]))
         }
         catch {
             case e: Exception =>

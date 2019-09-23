@@ -1,4 +1,4 @@
-package pro.civitaspo.digdag.plugin.pg_lock.migration
+package pro.civitaspo.digdag.plugin.pg_lock.pg.migration
 
 import org.flywaydb.core.api.migration.{BaseJavaMigration, Context}
 
@@ -17,7 +17,7 @@ class V0_0_1_1__CreateTable_digdag_pg_locks extends BaseJavaMigration
               |    namespace_value   UUID    NOT NULL,
               |    owner_attempt_id  BIGINT  NOT NULL,
               |    name              TEXT    NOT NULL,
-              |    max_count         INTEGER NOT NULL DEFAULT 1,
+              |    limit_count       INTEGER NOT NULL DEFAULT 1,
               |    expires_on        TIMESTAMP WITH TIME ZONE NOT NULL,
               |    updated_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
               |    created_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),

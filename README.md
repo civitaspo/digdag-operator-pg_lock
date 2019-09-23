@@ -34,7 +34,7 @@ _export:
   _parallel: true
   _do:
     pg_lock>: lock-2  
-    max_count: 5
+    limit: 5
     _do:
       echo>: hello world
     
@@ -71,6 +71,7 @@ s)?\s*`.
 - **pg_lock.min_poll_interval**: The minimum polling interval to wait for getting the named lock. (`DurationParam`, default: `5s`)
 - **pg_lock.max_poll_interval**: The maximum polling interval to wait for getting the named lock. (`DurationParam`, default: `5m`)
 - **pg_lock.schema_migration**: Whether do schema migration or not. (boolean, default: `true`)
+- **pg_loch.schema_migration_history_table**: The table name to write schema migration history. (string, default: `"pg_lock_schema_migrations"`)
 - **pg_lock.hash_seed_for_advisory_lock**: The seed to hash strings with "MurmurHash 3" algorithm for `pg_try_advisory_lock`. (integer, default: `-137723950` (the same as `scala.util.hashing.MurmurHash3.stringSeed`))
 
 
@@ -79,7 +80,7 @@ s)?\s*`.
 - **pg_lock>**: The name of lock. This name is used across workflows and projects. (string, required)
 - **wait_timeout**: The timeout to wait for getting the named lock. (`DurationParam`, default: `15m`)
 - **expire_in**: The duration that the named lock expires in. (`DurationParam`, default: `"1h"`)
-- **max_count**: The maximum count of the named locks within the namespace. If the different value is defined in another task, throw `ConfigException`. (integer, default: `1`) 
+- **limit**: The limit count of the named locks within the namespace. If the different value is defined in another task, throw `ConfigException`. (integer, default: `1`) 
 - **namespace**: The namespace that the named lock can be unique. The valid values are `"global"`, `"site"`, `"project"`, `"workflow"`, `"session"`, and`"attempt"`. (string, default: `"site"`)
 - **_do**: The definition of subtasks with the named lock. (config, required) 
 
@@ -104,6 +105,10 @@ aws configure
 ### 3) run an example
 
 ```sh
+## Run PostgreSQL foreground.
+./example/run-pg.sh
+
+## Run examples
 ./example/run.sh
 ```
 
