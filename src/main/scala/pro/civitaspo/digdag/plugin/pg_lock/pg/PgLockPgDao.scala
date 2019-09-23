@@ -68,6 +68,7 @@ trait PgLockPgDao
                            @Bind("limit_count") limitCount: Int,
                            @Bind("expire_in_seconds") expireInSeconds: Long): Int
 
-    @SqlUpdate("DELETE FROM digdag_pg_locks WHERE id = :id")
-    def deleteDigdagPgLock(@Bind("id") id: UUID): Unit
+    @SqlUpdate("DELETE FROM digdag_pg_locks WHERE id = :id AND owner_attempt_id = :owner_attempt_id")
+    def deleteOwnedDigdagPgLock(@Bind("id") id: UUID,
+                                @Bind("owner_attempt_id") ownerAttemptId: Long): Unit
 }

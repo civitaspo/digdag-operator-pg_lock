@@ -26,12 +26,14 @@ class PgUnlockOperator(context: OperatorContext,
     {
         val id: UUID = request.getConfig
             .get("_command", classOf[UUID])
+        val attemptId: Long = request
+            .getAttemptId
 
         def run(): TaskResult =
         {
             pgClient.transaction { dao =>
                 logger.info(s"Release lock: $id")
-                dao.deleteDigdagPgLock(id = id)
+                dao.deleteOwnedDigdagPgLock(id = id, ownerAttemptId = attemptId)
                 pgClient.commit()
                 TaskResult.empty(request)
             }
