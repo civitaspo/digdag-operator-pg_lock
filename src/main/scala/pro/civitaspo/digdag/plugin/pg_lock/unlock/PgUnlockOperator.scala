@@ -26,14 +26,22 @@ class PgUnlockOperator(context: OperatorContext,
     {
         val id: UUID = request.getConfig
             .get("_command", classOf[UUID])
+        val force: Boolean = request.getConfig
+            .get("force", classOf[Boolean], false)
         val attemptId: Long = request
             .getAttemptId
 
         def run(): TaskResult =
         {
             pgClient.transaction { dao =>
-                logger.info(s"Release lock: $id")
-                dao.deleteOwnedDigdagPgLock(id = id, ownerAttemptId = attemptId)
+                if (force) {
+                    logger.warn(s"Force to release lock: $id")
+                    dao.deleteDigdagPgLock(id = id)
+                }
+                else {
+                    logger.info(s"Release lock: $id")
+                    dao.deleteOwnedDigdagPgLock(id = id, ownerAttemptId = attemptId)
+                }
                 pgClient.commit()
                 TaskResult.empty(request)
             }
