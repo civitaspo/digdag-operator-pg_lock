@@ -32,7 +32,9 @@ dependencies {
     compile group: 'org.flywaydb', name: 'flyway-core', version: '6.0.1'
     compile group: 'com.typesafe.scala-logging', name: "scala-logging_$depScalaVersion", version: '3.9.2'
 
-    testCompile group: 'io.digdag', name: 'digdag-tests', version: digdagVersion
+    testCompile group: 'org.scalatest', name: "scalatest_$depScalaVersion", version: '3.0.8'
+    testCompile group: 'io.digdag', name: 'digdag-core', version: digdagVersion, classifier: 'tests'
+    testCompile group: 'io.digdag', name: 'digdag-tests', version: digdagVersion, classifier: 'tests'
 }
 
 shadowJar {
@@ -66,3 +68,8 @@ compileScala.options.encoding = 'UTF-8'
 compileTestScala.options.encoding = 'UTF-8'
 compileScala.options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 
+task scalaTest(dependsOn: ['testClasses'], type: JavaExec) {
+    main = 'org.scalatest.tools.Runner'
+    args = ['-R', 'build/classes/scala/test', '-o']
+    classpath = sourceSets.test.runtimeClasspath
+}
