@@ -1,0 +1,6 @@
+timezone: UTC
+
++pg_lock-simple:
+  pg_lock>: simple
+  _do:
+    echo>: simple

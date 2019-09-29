@@ -33,8 +33,7 @@ dependencies {
     compile group: 'com.typesafe.scala-logging', name: "scala-logging_$depScalaVersion", version: '3.9.2'
 
     testCompile group: 'org.scalatest', name: "scalatest_$depScalaVersion", version: '3.0.8'
-    testCompile group: 'io.digdag', name: 'digdag-core', version: digdagVersion, classifier: 'tests'
-    testCompile group: 'io.digdag', name: 'digdag-tests', version: digdagVersion, classifier: 'tests'
+    testCompile group: 'io.digdag', name: 'digdag-cli', version: digdagVersion
 }
 
 shadowJar {
