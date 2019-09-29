@@ -29,7 +29,7 @@ dependencies {
     compile group: 'com.zaxxer', name: 'HikariCP', version: '2.4.7'
 
     compile group: 'org.scala-lang', name: 'scala-library', version: scalaSemanticVersion
-    compile group: 'org.flywaydb', name: 'flyway-core', version: '6.0.1'
+    compile group: 'org.flywaydb', name: 'flyway-core', version: '6.0.4'
     compile group: 'com.typesafe.scala-logging', name: "scala-logging_$depScalaVersion", version: '3.9.2'
 
     testCompile group: 'org.scalatest', name: "scalatest_$depScalaVersion", version: '3.0.8'
