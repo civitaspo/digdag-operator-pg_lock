@@ -8,7 +8,7 @@ import java.util.Properties
 
 import com.google.common.io.Files
 import org.scalatest.{BeforeAndAfter, DiagrammedAssertions, FlatSpec, Matchers}
-import pro.civitaspo.digdag.plugin.pg_lock.DigdagTestUtils.{readResource, writeFile, CommandStatus}
+import pro.civitaspo.digdag.plugin.pg_lock.DigdagTestUtils.{digdag, readResource, writeFile, CommandStatus}
 
 import scala.util.Using
 
@@ -71,7 +71,7 @@ class PgLockPluginTest
                  |pg_lock.user=${digdagPgLockProps.getProperty("pg_lock.user")}
                  |pg_lock.password=${digdagPgLockProps.getProperty("pg_lock.password")}
             """.stripMargin)
-        val status: CommandStatus = DigdagTestUtils.digdag(
+        val status: CommandStatus = digdag(
             "run",
             "-o", projectPath.toAbsolutePath.toString,
             "--config", configPath.toString,
