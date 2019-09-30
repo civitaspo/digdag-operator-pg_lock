@@ -14,6 +14,7 @@ case class PgLockPgConfig(
     host: String,
     port: Int,
     database: String,
+    schemata: String,
     user: String,
     password: Option[String],
     loginTimeout: DurationParam,
@@ -43,6 +44,7 @@ case class PgLockPgConfig(
                               )
             props.setProperty("tcpKeepAlive", "true")
             props.setProperty("user", user)
+            props.setProperty("currentSchema", schemata)
             password.foreach(pw => props.setProperty("password", pw))
             if (ssl) {
                 props.setProperty("ssl", "true")
@@ -66,6 +68,7 @@ object PgLockPgConfig
             host = systemConfig.get(s"$CONFIG_KEY_PREFIX.host", classOf[String]),
             port = systemConfig.get(s"$CONFIG_KEY_PREFIX.port", classOf[Int], 5432),
             database = systemConfig.get(s"$CONFIG_KEY_PREFIX.database", classOf[String]),
+            schemata = systemConfig.get(s"$CONFIG_KEY_PREFIX.schemata", classOf[String], "public"),
             user = systemConfig.get(s"$CONFIG_KEY_PREFIX.user", classOf[String]),
             password = Option(systemConfig.getOptional(s"$CONFIG_KEY_PREFIX.password", classOf[String]).orNull()),
             loginTimeout = systemConfig.get(s"$CONFIG_KEY_PREFIX.login_timeout", classOf[DurationParam], DurationParam.parse("30s")),

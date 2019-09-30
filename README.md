@@ -55,6 +55,7 @@ s)?\s*`.
 - **pg_lock.host**: The host name of PostgreSQL. (string, required)
 - **pg_lock.port**: The port of PostgreSQL. (integer, default: `5432`)
 - **pg_lock.database**: The database name of PostgreSQL. (string, required)
+- **pg_lock.schemata**: The schema (or several schemata separated by commas) to be set in the search-path. (string, default: `"public"`)
 - **pg_lock.user**: The user name of PostgreSQL. (string, required)
 - **pg_lock.password**: The password of PostgreSQL. (string, optional)
 - **pg_lock.login_timeout**: The timeout duration to wait for establishment of a PostgreSQL database connection. (`DurationParam`, default: `30s`)
