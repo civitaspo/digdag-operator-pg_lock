@@ -3,6 +3,7 @@ package pro.civitaspo.digdag.plugin.pg_lock
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, File, PrintStream}
 import java.nio.charset.StandardCharsets.UTF_8
+import java.nio.file.Path
 
 import com.google.common.io.Files
 import io.digdag.cli.Main
@@ -16,19 +17,10 @@ import scala.util.Using
 object DigdagTestUtils
 {
     case class CommandStatus(code: Int,
-                             out: Array[Byte],
-                             err: Array[Byte])
-    {
-        def getStdout: String =
-        {
-            new String(out, UTF_8)
-        }
+                             stdout: String,
+                             stderr: String,
+                             log: Option[String] = None)
 
-        def getStderr: String =
-        {
-            new String(err, UTF_8)
-        }
-    }
 
     def readResource(path: String): String =
     {
@@ -61,8 +53,33 @@ object DigdagTestUtils
                     ) =>
                 val main = new Main(DigdagVersion.buildVersion(), Map[String, String]().asJava, outPS, errPS, in)
                 val code: Int = main.cli(args: _*)
-                CommandStatus(code, out.toByteArray, err.toByteArray)
+                CommandStatus(code, new String(out.toByteArray, UTF_8), new String(err.toByteArray, UTF_8))
             }
         }
+    }
+
+    def digdagRun(projectPath: Path,
+                  configString: String,
+                  digString: String): CommandStatus =
+    {
+        val configPath: Path = projectPath.resolve("config")
+        writeFile(configPath.toFile, configString)
+
+        val digPath: Path = projectPath.resolve("main.dig")
+        writeFile(digPath.toFile, digString)
+
+        val logPath: Path = projectPath.resolve("log")
+
+        val status: CommandStatus = digdag(
+            "run",
+            "--save", projectPath.toAbsolutePath.toString,
+            "--config", configPath.toString,
+            "--log", logPath.toString,
+            "--project", projectPath.toAbsolutePath.toString,
+            digPath.toString
+            )
+
+        val log: String = Source.fromFile(logPath.toFile).mkString
+        status.copy(log = Option(log))
     }
 }

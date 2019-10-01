@@ -70,5 +70,6 @@ compileScala.options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 task scalaTest(dependsOn: ['testClasses'], type: JavaExec) {
     main = 'org.scalatest.tools.Runner'
     args = ['-R', 'build/classes/scala/test', '-o']
+    jvmArgs = ['-Duser.language=en', '-Duser.country=US']
     classpath = sourceSets.test.runtimeClasspath
 }
