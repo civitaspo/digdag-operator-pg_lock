@@ -184,7 +184,10 @@ class PgLockPluginTest
                        | ORDER
                        |    BY 1
                 """.stripMargin)
-                val tableNames: Seq[String] = Iterator.continually(rs).takeWhile(_.next()).map(_.getString(1)).toSeq
+                val tableNames: Seq[String] = Iterator.continually(rs)
+                    .takeWhile(_.next())
+                    .map(_.getString("table_name"))
+                    .toSeq
 
                 assert(tableNames.size === 2)
                 assert(tableNames(0) === "digdag_pg_locks")
@@ -192,10 +195,55 @@ class PgLockPluginTest
             }
         }
 
+        Using.resource(getJdbcPgLockConnection) { conn =>
+            Using.resource(conn.createStatement()) { stmt =>
+                val rs: ResultSet = stmt.executeQuery(
+                    s"""
+                       |   SELECT db.datname AS database_name
+                       |        , t.relname  AS table_name
+                       |        , i.relname  AS index_name
+                       |        , a.attname  AS column_name
+                       |        , a.attnum   AS column_pos
+                       |     FROM pg_class t
+                       |        , pg_class i
+                       |        , pg_index ix
+                       |        , pg_attribute a
+                       |        , pg_database db
+                       |    WHERE t.oid      = ix.indrelid
+                       |      AND i.oid      = ix.indexrelid
+                       |      AND t.relowner = db.datdba
+                       |      AND a.attrelid = t.oid
+                       |      AND a.attnum   = ANY(ix.indkey)
+                       |      AND t.relkind  = 'r'
+                       |      AND t.relname  = 'digdag_pg_locks'
+                       |      AND db.datname = 'digdag'
+                       | ORDER BY t.relname
+                       |        , i.relname
+                       |        , a.attnum
+                     """.stripMargin)
+
+                val idxCols: Map[String, Seq[String]] = Iterator.continually(rs)
+                    .takeWhile(_.next())
+                    .foldLeft(Map[String, Seq[String]]()) { (result,
+                                                             rs) =>
+                        val idxName: String = rs.getString("index_name")
+                        val cols: Seq[String] = result.getOrElse(idxName, Seq()) :+ rs.getString("column_name")
+                        result.updated(idxName, cols)
+                    }
+
+                assert(idxCols.contains("digdag_pg_locks_pkey"))
+                assert(idxCols.getOrElse("digdag_pg_locks_pkey", Seq()) === Seq("id"))
+
+                assert(idxCols.contains("digdag_pg_locks_idx_named_locks"))
+                assert(idxCols.getOrElse("digdag_pg_locks_idx_named_locks", Seq()) === Seq("namespace_type", "namespace_value", "name"))
+
+                assert(idxCols.contains("digdag_pg_locks_idx_expires_on"))
+                assert(idxCols.getOrElse("digdag_pg_locks_idx_expires_on", Seq()) === Seq("expires_on"))
+            }
+        }
+
     }
 
-
-    behavior of "the pg_lock> operator configuration"
     behavior of "the pg_lock> operator"
     it should "run" in {
         val digString = readResource("/simple.dig")
