@@ -37,7 +37,6 @@ _export:
     limit: 5
     _do:
       echo>: hello world
-    
 ```
 
 See [example](./example).
@@ -97,23 +96,33 @@ s)?\s*`.
 
 Artifacts are build on local repos: `./build/repo`.
 
-### 2) get your aws profile
-
-```sh
-aws configure
-```
-
-### 3) run an example
+### 2) run a PostgreSQL
 
 ```sh
 ## Run PostgreSQL foreground.
 ./example/run-pg.sh
+```
 
-## Run examples
+PostgreSQL Runs foreground.
+
+### 3) run examples
+
+```sh
 ./example/run.sh
 ```
 
 ## Run Tests
+
+### 1) run a PostgreSQL
+
+```sh
+## Run PostgreSQL foreground.
+./example/run-pg.sh
+```
+
+PostgreSQL Runs foreground.
+
+### 2) run tests
 
 ```sh
 ./gradlew test
