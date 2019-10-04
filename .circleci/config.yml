@@ -21,7 +21,7 @@ executors:
       - image: circleci/openjdk:8-jdk
         environment:
           JVM_OPTS: -Xmx3200m
-          TERM: dump
+          TERM: xterm-color
 
 workflows:
   version: 2
