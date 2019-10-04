@@ -33,6 +33,7 @@ dependencies {
     compile group: 'com.typesafe.scala-logging', name: "scala-logging_$depScalaVersion", version: '3.9.2'
 
     testCompile group: 'org.scalatest', name: "scalatest_$depScalaVersion", version: '3.0.8'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'io.digdag', name: 'digdag-cli', version: digdagVersion
 }
 
@@ -60,6 +61,10 @@ publishing {
     }
 }
 
+test {
+    jvmArgs '-Duser.language=en -Duser.country=US'
+}
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -67,9 +72,3 @@ compileScala.options.encoding = 'UTF-8'
 compileTestScala.options.encoding = 'UTF-8'
 compileScala.options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 
-task scalaTest(dependsOn: ['testClasses'], type: JavaExec) {
-    main = 'org.scalatest.tools.Runner'
-    args = ['-R', 'build/classes/scala/test', '-o']
-    jvmArgs = ['-Duser.language=en', '-Duser.country=US']
-    classpath = sourceSets.test.runtimeClasspath
-}

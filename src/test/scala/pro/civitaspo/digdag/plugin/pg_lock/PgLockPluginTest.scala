@@ -7,13 +7,16 @@ import java.sql.{Connection, DriverManager, ResultSet}
 import java.util.Properties
 
 import com.google.common.io.Files
+import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfter, DiagrammedAssertions, FlatSpec}
+import org.scalatestplus.junit.JUnitRunner
 import pro.civitaspo.digdag.plugin.pg_lock.DigdagTestUtils.{digdagRun, readResource, CommandStatus}
 
 import scala.util.Using
 import scala.util.matching.Regex
 
 
+@RunWith(classOf[JUnitRunner])
 class PgLockPluginTest
     extends FlatSpec
         with BeforeAndAfter
