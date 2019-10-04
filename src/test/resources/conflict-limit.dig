@@ -1,0 +1,23 @@
+timezone: UTC
+
++conflict-limit:
+
+  _parallel: true
+
+  +limit-1:
+    pg_lock>: lock
+    limit: 1
+    _do:
+      +sleep:
+        sh>: sleep 15
+      +echo:
+        echo>: success
+
+  +limit-2:
+    +sleep:
+      sh>: sleep 10
+    +lock:
+      pg_lock>: lock
+      limit: 2
+      _do:
+        echo>: failure

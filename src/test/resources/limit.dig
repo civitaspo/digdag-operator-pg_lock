@@ -1,0 +1,33 @@
+timezone: UTC
+
++limit:
+
+  _parallel: true
+
+  +success1:
+    pg_lock>: lock
+    limit: 2
+    _do:
+      +sleep:
+        sh>: sleep 15
+      +echo:
+        echo>: success
+
+
+  +success2:
+    pg_lock>: lock
+    limit: 2
+    _do:
+      +sleep:
+        sh>: sleep 15
+      +echo:
+        echo>: success
+
+  +lock-wait:
+    +sleep:
+      sh>: sleep 10
+    +lock:
+      pg_lock>: lock
+      limit: 2
+      _do:
+        echo>: output this finally

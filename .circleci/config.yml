@@ -1,33 +1,45 @@
-version: 2
+version: 2.1
 
-references:
-  environment: &environment
+orbs:
+  gradle: circleci/gradle@1.0.11
+
+executors:
+  tester:
+    docker:
+      - image: circleci/openjdk:8-jdk  # primary
+        environment:
+          JVM_OPTS: -Xmx3200m
+          TERM: dumb
+      - image: postgres:10
+        environment:
+          POSTGRES_DB: digdag
+          POSTGRES_USER: digdag
+          POSTGRES_PASSWORD: digdag
+          POSTGRES_INITDB_ARGS: "--auth-host password --auth-local password"
+  builder:
     docker:
       - image: circleci/openjdk:8-jdk
-    working_directory: ~/repo
-    environment:
-      # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
-
-jobs:
-  build:
-    <<: *environment
-    steps:
-      - checkout
-      - run: ./gradlew publish
-
-  ## Require an AWS account, and take some money to launch EMR, so it doesn't work now.
-  run_example:
-    <<: *environment
-    steps:
-      - checkout
-      - run: ./example/run.sh
+        environment:
+          JVM_OPTS: -Xmx3200m
+          TERM: xterm-color
 
 workflows:
   version: 2
 
-  merge-before:
+  main:
     jobs:
-      - build
+      - gradle/test:
+          executor: tester
+          test_results_path: build/results/
+          reports_path: build/reports/
+          filters:
+            branches:
+              only: /.*/
+      - gradle/run:
+          executor: builder
+          command: publish
+          requires:
+            - gradle/test
+
+
 

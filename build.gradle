@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'pro.civitaspo'
-version = '0.0.1'
+version = '0.0.1.pre'
 
 def digdagVersion = '0.9.39'
 def scalaSemanticVersion = "2.13.0"
@@ -23,15 +23,28 @@ dependencies {
     compile group: 'io.digdag', name: 'digdag-spi', version: digdagVersion
     compile group: 'io.digdag', name: 'digdag-plugin-utils', version: digdagVersion
 
-    // https://mvnrepository.com/artifact/org.scala-lang/scala-library
+    // Follow digdag core dependencies. These are used only when compiling.
+    // ref. https://github.com/treasure-data/digdag/tree/v0.9.39/digdag-core/build.gradle#L16-L17
+    compile group: 'org.jdbi', name: 'jdbi', version: '2.75'
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '2.4.7'
+
     compile group: 'org.scala-lang', name: 'scala-library', version: scalaSemanticVersion
+    compile group: 'org.flywaydb', name: 'flyway-core', version: '6.0.4'
+    compile group: 'com.typesafe.scala-logging', name: "scala-logging_$depScalaVersion", version: '3.9.2'
+
+    testCompile group: 'org.scalatest', name: "scalatest_$depScalaVersion", version: '3.0.8'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'io.digdag', name: 'digdag-cli', version: digdagVersion
 }
 
 shadowJar {
     classifier = null
     dependencies {
         exclude(dependency('io.digdag:.*'))
-        exclude(dependency('.*:jackson.*:.*'))
+        exclude(dependency('com.fasterxml.jackson.*:.*:.*'))
+        exclude(dependency('com.google.inject:.*:.*'))
+        exclude(dependency('org.jdbi:jdbi:.*'))
+        exclude(dependency('com.zaxxer:HikariCP:.*'))
     }
 }
 
@@ -46,6 +59,10 @@ publishing {
             url "$buildDir/repo"
         }
     }
+}
+
+test {
+    jvmArgs '-Duser.language=en -Duser.country=US'
 }
 
 sourceCompatibility = 1.8
