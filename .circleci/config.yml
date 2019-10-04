@@ -15,6 +15,7 @@ executors:
           POSTGRES_DB: digdag
           POSTGRES_USER: digdag
           POSTGRES_PASSWORD: digdag
+          POSTGRES_INITDB_ARGS: "--auth-host password --auth-local password"
   builder:
     docker:
       - image: circleci/openjdk:8-jdk

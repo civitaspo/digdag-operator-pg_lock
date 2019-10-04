@@ -7,5 +7,6 @@ exec docker run \
     -e POSTGRES_DB=digdag \
     -e POSTGRES_USER=digdag \
     -e POSTGRES_PASSWORD=digdag \
+    -e POSTGRES_INITDB_ARGS="--auth-host password --auth-local password" \
     postgres:10
 
