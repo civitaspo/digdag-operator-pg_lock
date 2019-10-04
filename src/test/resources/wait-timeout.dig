@@ -1,0 +1,22 @@
+timezone: UTC
+
++wait-timeout:
+
+  _parallel: true
+
+  +success:
+    pg_lock>: lock
+    _do:
+      +sleep:
+        sh>: sleep 10
+      +echo:
+        echo>: success
+
+  +failure:
+    +sleep:
+      sh>: sleep 1
+    +lock:
+      pg_lock>: lock
+      wait_timeout: 0s
+      _do:
+        echo>: failure

@@ -1,7 +1,8 @@
 package pro.civitaspo.digdag.plugin.pg_lock
 
 
-import java.io.{File, StringReader}
+import java.io.{ByteArrayOutputStream, File, PrintStream, StringReader}
+import java.nio.charset.StandardCharsets.UTF_8
 import java.sql.{Connection, DriverManager, ResultSet}
 import java.util.Properties
 
@@ -10,6 +11,7 @@ import org.scalatest.{BeforeAndAfter, DiagrammedAssertions, FlatSpec}
 import pro.civitaspo.digdag.plugin.pg_lock.DigdagTestUtils.{digdagRun, readResource, CommandStatus}
 
 import scala.util.Using
+import scala.util.matching.Regex
 
 
 class PgLockPluginTest
@@ -20,14 +22,14 @@ class PgLockPluginTest
     val digdagPgLockProps: Properties = new Properties()
     var tmpDir: File = _
 
-    def minimumSystemConfig: String =
+    def defaultSystemConfig: String =
     {
-        s"""
-           |pg_lock.host=${p("host")}
-           |pg_lock.database=${p("database")}
-           |pg_lock.user=${p("user")}
-           |pg_lock.password=${p("password")}
-         """.stripMargin
+        Using.resource(new ByteArrayOutputStream) { b =>
+            Using.resource(new PrintStream(b, true, "UTF-8")) { p =>
+                digdagPgLockProps.store(p, "default")
+                new String(b.toByteArray, UTF_8)
+            }
+        }
     }
 
     def getJdbcPostgresConnection: Connection =
@@ -167,7 +169,7 @@ class PgLockPluginTest
 
         val status: CommandStatus = digdagRun(
             projectPath = tmpDir.toPath,
-            configString = minimumSystemConfig,
+            configString = defaultSystemConfig,
             digString = digString
             )
 
@@ -245,15 +247,46 @@ class PgLockPluginTest
     }
 
     behavior of "the pg_lock> operator"
-    it should "run" in {
-        val digString = readResource("/simple.dig")
+    it should "fail with wait_timeout: 0s if another task locks" in {
+        val digString = readResource("/wait-timeout.dig")
 
         val status: CommandStatus = digdagRun(
             projectPath = tmpDir.toPath,
-            configString = minimumSystemConfig,
+            configString = defaultSystemConfig,
+            digString = digString
+            )
+
+        assert(status.code === 1)
+        val expectedPattern: Regex = """\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \+\d{4} \[ERROR\] \(.+?\+main\+wait-timeout\+failure\+lock\): Task failed with unexpected error: Give up polling\.""".r
+        assert(expectedPattern.findFirstIn(status.log.get).isDefined)
+    }
+
+    it should "lock up to the limit" in {
+        val digString = readResource("/limit.dig")
+
+        val status: CommandStatus = digdagRun(
+            projectPath = tmpDir.toPath,
+            configString = defaultSystemConfig,
             digString = digString
             )
 
         assert(status.code === 0)
+        val expectedPattern: Regex = """\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \+\d{4} \[INFO\] \(.+?\+main\+limit\+lock-wait\+lock\): Wait because current lock count=2 reaches the limit=2\. \(namespace_type: site, namespace_value: .+?, name: lock\)""".r
+        assert(expectedPattern.findFirstIn(status.log.get).isDefined)
     }
+
+    it should "fail when several limit settings are defined about the same lock name" in {
+        val digString = readResource("/conflict-limit.dig")
+
+        val status: CommandStatus = digdagRun(
+            projectPath = tmpDir.toPath,
+            configString = defaultSystemConfig,
+            digString = digString
+            )
+
+        assert(status.code === 1)
+        val expectedPattern: Regex = """\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \+\d{4} \[ERROR\] \(.+?\+main\+conflict-limit\+limit-2\+lock\): Configuration error at task \+main\+conflict-limit\+limit-2\+lock: Conflict current config: limit=2 because another workflow defines limit=1\. \(config\)""".r
+        assert(expectedPattern.findFirstIn(status.log.get).isDefined)
+    }
+
 }
