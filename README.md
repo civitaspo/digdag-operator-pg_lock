@@ -1,5 +1,5 @@
 # digdag-operator-pg_lock
-[![Jitpack](https://jitpack.io/v/pro.civitaspo/digdag-operator-operator-pg_lock.svg)](https://jitpack.io/#pro.civitaspo/digdag-operator-pg_lock) [![CircleCI](https://circleci.com/gh/civitaspo/digdag-operator-pg_lock.svg?style=shield)](https://circleci.com/gh/civitaspo/digdag-operator-pg_lock) [![Digdag](https://img.shields.io/badge/digdag-v0.9.39-brightgreen.svg)](https://github.com/treasure-data/digdag/releases/tag/v0.9.39)
+[![Jitpack](https://jitpack.io/v/pro.civitaspo/digdag-operator-pg_lock.svg)](https://jitpack.io/#pro.civitaspo/digdag-operator-pg_lock) [![CircleCI](https://circleci.com/gh/civitaspo/digdag-operator-pg_lock.svg?style=shield)](https://circleci.com/gh/civitaspo/digdag-operator-pg_lock) [![Digdag](https://img.shields.io/badge/digdag-v0.9.39-brightgreen.svg)](https://github.com/treasure-data/digdag/releases/tag/v0.9.39)
 
 A digdag plugin to run digdag tasks with locks by PostgreSQL.
 
@@ -15,7 +15,7 @@ _export:
     repositories:
       - https://jitpack.io
     dependencies:
-      - pro.civitaspo:digdag-operator-pg_lock:0.0.1
+      - pro.civitaspo:digdag-operator-pg_lock:0.0.1.pre
 
 +lock-with:
   # Wait during 5m until getting the named lock if another task locks.
@@ -99,7 +99,6 @@ Artifacts are build on local repos: `./build/repo`.
 ### 2) run a PostgreSQL
 
 ```sh
-## Run PostgreSQL foreground.
 ./example/run-pg.sh
 ```
 
@@ -116,7 +115,6 @@ PostgreSQL Runs foreground.
 ### 1) run a PostgreSQL
 
 ```sh
-## Run PostgreSQL foreground.
 ./example/run-pg.sh
 ```
 
