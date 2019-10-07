@@ -70,7 +70,7 @@ case class PgLockPollingWaiter(lastStateParams: Config,
             }
 
         if (isSuccess) {
-            logger.info(s"Successfully finished polling '$pollingName'. (retry_count: $retryCount, total waiting: ${totalWaitingSeconds}s)")
+            logger.debug(s"Successfully finished polling '$pollingName'. (retry_count: $retryCount, total waiting: ${totalWaitingSeconds}s)")
 
             // NOTE: Remove polling state for the next use of the PgLockPollingWaiter instance.
             lastRootState.remove(pollingName)
@@ -98,7 +98,7 @@ case class PgLockPollingWaiter(lastStateParams: Config,
                     }
             }
 
-        logger.info(s"Wait ${nextWaitingSeconds}s for '$pollingName'. (next state => $nextStateParam)")
+        logger.debug(s"Wait ${nextWaitingSeconds}s for '$pollingName'. (next state => $nextStateParam)")
         throw TaskExecutionException.ofNextPolling(nextWaitingSeconds, ConfigElement.copyOf(nextStateParam))
     }
 }

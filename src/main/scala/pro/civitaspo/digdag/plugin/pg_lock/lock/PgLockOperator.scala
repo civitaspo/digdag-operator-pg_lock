@@ -82,6 +82,9 @@ class PgLockOperator(context: OperatorContext,
                     val lockId: UUID = UUID.randomUUID()
                     doLock(dao, lockId)
                     pgClient.commit()
+                    logger.info(s"Successfully get the lock (id: $lockId, namespace_type: ${namespace.getType}," +
+                                    s" namespace_value: ${namespace.getValue}, owner_attempt_id: ${namespace.getOwnerAttemptId}," +
+                                    s" expire_in: ${expireIn.toString}, limit: $limit)")
 
                     buildTaskResult(lockId)
                 }
