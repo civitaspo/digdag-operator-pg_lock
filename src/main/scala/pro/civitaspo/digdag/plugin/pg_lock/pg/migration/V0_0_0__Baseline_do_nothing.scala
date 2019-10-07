@@ -6,7 +6,7 @@ import org.flywaydb.core.api.migration.{BaseJavaMigration, Context}
 import scala.util.Using
 
 
-class V0_0_0__Baseline
+class V0_0_0__Baseline_do_nothing
     extends BaseJavaMigration
 {
     override def migrate(context: Context): Unit =
