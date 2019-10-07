@@ -60,7 +60,8 @@ object DigdagTestUtils
 
     def digdagRun(projectPath: Path,
                   configString: String,
-                  digString: String): CommandStatus =
+                  digString: String,
+                  params: Map[String, String] = Map()): CommandStatus =
     {
         val configPath: Path = projectPath.resolve("config")
         writeFile(configPath.toFile, configString)
@@ -70,14 +71,17 @@ object DigdagTestUtils
 
         val logPath: Path = projectPath.resolve("log")
 
-        val status: CommandStatus = digdag(
-            "run",
-            "--save", projectPath.toAbsolutePath.toString,
-            "--config", configPath.toString,
-            "--log", logPath.toString,
-            "--project", projectPath.toAbsolutePath.toString,
-            digPath.toString
-            )
+        val args: Seq[String] = Seq.newBuilder[String]
+            .addOne("run")
+            .addOne("--save").addOne(projectPath.toAbsolutePath.toString)
+            .addOne("--config").addOne(configPath.toString)
+            .addOne("--log").addOne(logPath.toString)
+            .addOne("--project").addOne(projectPath.toAbsolutePath.toString)
+            .addAll(params.toSeq.map(_.productIterator.mkString("=")).flatMap(Seq("--param", _)))
+            .addOne(digPath.toString)
+            .result()
+
+        val status: CommandStatus = digdag(args: _*)
 
         val log: String = Source.fromFile(logPath.toFile).mkString
         status.copy(log = Option(log))
