@@ -74,7 +74,8 @@ object PgLockNamespace
                 case "global"    => Global
                 case "site"      => Site
                 case "project"   => Project
-                case "workflow"  => Session
+                case "workflow"  => Workflow
+                case "session"   => Session
                 case "attempt"   => Attempt
                 case unsupported => throw new ConfigException(s"Unsupported namespace: $unsupported")
             }
