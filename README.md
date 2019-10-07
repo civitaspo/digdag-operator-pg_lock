@@ -84,6 +84,18 @@ s)?\s*`.
 - **namespace**: The namespace that the named lock can be unique. The valid values are `"global"`, `"site"`, `"project"`, `"workflow"`, `"session"`, and`"attempt"`. (string, default: `"site"`)
 - **_do**: The definition of subtasks with the named lock. (config, required) 
 
+
+# Warnings
+
+* When you cancel the tasks inside `_do` of `pg_lock>`, you must wait for the release of the lock until the expiration. So, I recommend you to set the `expire_in` duration as short as possible.
+    * This problem is resolved by [treasure-data/digdag \[feature request\] `_canceled` parameter for some cleanup tasks #1226](https://github.com/treasure-data/digdag/issues/1226).
+    * You can unlock the lock forcibly by using the internal operator `pg_unlock`. You need to find the lock ID from the log. This operator is used internally, so be careful when using it as changes that are not backward compatible may be made. See the [PgUnlockOperator implementation](./src/main/scala/pro/civitaspo/digdag/plugin/pg_lock/unlock/PgUnlockOperator.scala).
+      ```yaml
+      +unlock-forcibly:
+        pg_unlock>: ${the lock ID}
+        force: true
+      ```
+
 # Development
 
 ## Run an Example
