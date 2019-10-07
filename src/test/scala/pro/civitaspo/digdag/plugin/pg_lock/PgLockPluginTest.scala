@@ -373,7 +373,7 @@ class PgLockPluginTest
         }
     }
 
-        behavior of "the pg_lock> operator"
+    behavior of "the pg_lock> operator"
     it should "fail with wait_timeout: 0s if another task locks" in {
         val digString = readResource("/wait-timeout.dig")
 
@@ -416,4 +416,37 @@ class PgLockPluginTest
         assert(expectedPattern.findFirstIn(status.log.get).isDefined)
     }
 
+    it should "fail when namespace is unknown" in {
+        val digString = readResource("/namespace.dig")
+
+        def assertNamespace(namespace: String,
+                            expectError: Boolean = false): Unit =
+        {
+            val status: CommandStatus = digdagRun(
+                projectPath = tmpDir.toPath,
+                configString = defaultSystemConfig,
+                digString = digString,
+                params = Map("namespace" -> namespace)
+                )
+
+            if (expectError) {
+                assert(status.code == 1)
+                val expectedPattern: Regex = ("""\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \+\d{4} \[ERROR\] \(.+?\+main\+namespace\): Configuration error at task \+main\+namespace: Unsupported namespace: """ + namespace + """ \(config\)""").r
+                assert(expectedPattern.findFirstIn(status.log.get).isDefined)
+            }
+            else {
+                assert(status.code == 0)
+                val expectedPattern: Regex = ("""\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \+\d{4} \[INFO\] \(.+?\+main\+namespace\): Successfully get the lock \(id: [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}, namespace_type: """ + namespace + """, namespace_value: [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}, owner_attempt_id: .+?, expire_in: .+?, limit: .+?\)""").r
+                assert(expectedPattern.findFirstIn(status.log.get).isDefined)
+            }
+        }
+
+        assertNamespace(namespace = "global")
+        assertNamespace(namespace = "site")
+        assertNamespace(namespace = "project")
+        assertNamespace(namespace = "workflow")
+        assertNamespace(namespace = "session")
+        assertNamespace(namespace = "attempt")
+        assertNamespace(namespace = "test", expectError = true)
+    }
 }

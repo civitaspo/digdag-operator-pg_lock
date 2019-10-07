@@ -1,0 +1,7 @@
+timezone: UTC
+
++namespace:
+  pg_lock>: simple
+  namespace: ${namespace}
+  _do:
+    echo>: simple
