@@ -79,6 +79,7 @@ object DigdagTestUtils
             .addOne("--project").addOne(projectPath.toAbsolutePath.toString)
             .addAll(params.toSeq.map(_.productIterator.mkString("=")).flatMap(Seq("--param", _)))
             .addOne(digPath.toString)
+            .addOne("--no-save")
             .result()
 
         val status: CommandStatus = digdag(args: _*)
