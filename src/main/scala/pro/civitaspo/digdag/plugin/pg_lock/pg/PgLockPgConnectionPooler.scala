@@ -76,4 +76,16 @@ class PgLockPgConnectionPooler(config: PgLockPgConfig)
 
         new HikariDataSource(hc)
     }
+
+    /*
+      TODO: This class depends on the `finalize()` method to close the pool, it is not a good way.
+            But, Guice Injector does not manage the lifecycle, so I have to take the way...
+            ref. https://github.com/google/guice/issues/1069
+            If someone else has a better way, please tell me or give me a pull-request.
+    */
+
+    override def finalize(): Unit =
+    {
+        shutdown()
+    }
 }

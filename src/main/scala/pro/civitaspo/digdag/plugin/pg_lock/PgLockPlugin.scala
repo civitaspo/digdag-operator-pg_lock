@@ -4,7 +4,7 @@ package pro.civitaspo.digdag.plugin.pg_lock
 import com.google.inject.{Binder, Scopes}
 import com.typesafe.scalalogging.LazyLogging
 import io.digdag.spi.{OperatorProvider, Plugin}
-import pro.civitaspo.digdag.plugin.pg_lock.pg.{PgLockPgConnectionPooler, PgLockPgConnectionPoolerLifecycleManager, PgLockPgConnectionPoolerLifecycleManagerProvider, PgLockPgConnectionPoolerProvider}
+import pro.civitaspo.digdag.plugin.pg_lock.pg.{PgLockPgConnectionPooler, PgLockPgConnectionPoolerProvider}
 
 
 class PgLockPlugin
@@ -24,10 +24,6 @@ class PgLockPlugin
         binder
             .bind(classOf[PgLockPgConnectionPooler])
             .toProvider(classOf[PgLockPgConnectionPoolerProvider])
-            .in(Scopes.SINGLETON)
-        binder
-            .bind(classOf[PgLockPgConnectionPoolerLifecycleManager])
-            .toProvider(classOf[PgLockPgConnectionPoolerLifecycleManagerProvider])
             .in(Scopes.SINGLETON)
     }
 }
