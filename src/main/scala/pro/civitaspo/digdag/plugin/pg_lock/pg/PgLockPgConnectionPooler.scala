@@ -18,6 +18,7 @@ class PgLockPgConnectionPooler(config: PgLockPgConfig)
     extends LazyLogging
 {
     private val hikari: HikariDataSource = createDataSourceWithConnectionPool().tap { hikari =>
+        logger.debug("Initialized: {}", hikari)
         // TODO: ignore errors?
         if (config.schemaMigration) PgLockPgDatabaseMigrator(config, hikari).migrate()
     }
@@ -38,7 +39,10 @@ class PgLockPgConnectionPooler(config: PgLockPgConfig)
 
     def shutdown(): Unit =
     {
-        try hikari.close()
+        try {
+            hikari.close()
+            logger.debug("Shutdown: {}", hikari)
+        }
         catch {
             case ex: Exception =>
                 throw Throwables.propagate(ex)
@@ -74,5 +78,17 @@ class PgLockPgConnectionPooler(config: PgLockPgConfig)
         // false when an error happened during a transaction.
 
         new HikariDataSource(hc)
+    }
+
+    /*
+      TODO: This class depends on the `finalize()` method to close the pool, it is not a good way.
+            But, Guice Injector does not manage the lifecycle, so I have to take the way...
+            ref. https://github.com/google/guice/issues/1069
+            If someone else has a better way, please tell me or give me a pull-request.
+    */
+
+    override def finalize(): Unit =
+    {
+        shutdown()
     }
 }

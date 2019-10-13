@@ -15,7 +15,7 @@ _export:
     repositories:
       - https://jitpack.io
     dependencies:
-      - pro.civitaspo:digdag-operator-pg_lock:0.0.1.pre2
+      - pro.civitaspo:digdag-operator-pg_lock:0.0.1.pre3
 
 +lock-with:
   # Wait during 5m until getting the named lock if another task locks.
@@ -95,6 +95,7 @@ s)?\s*`.
         pg_unlock>: ${the lock ID}
         force: true
       ```
+* This plugin close connections in `PgLockPgConnectionPooler#finalize()`, so the number of connections does not necessarily exceed value of **pg_lock.max_pool_size**.
 
 # Development
 
