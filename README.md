@@ -95,6 +95,7 @@ s)?\s*`.
         pg_unlock>: ${the lock ID}
         force: true
       ```
+* This plugin close connections in `PgLockPgConnectionPooler#finalize()`, so the number of connections does not necessarily exceed value of **pg_lock.max_pool_size**.
 
 # Development
 
