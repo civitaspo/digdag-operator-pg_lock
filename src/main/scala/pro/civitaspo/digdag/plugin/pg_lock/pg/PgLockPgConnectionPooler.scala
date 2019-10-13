@@ -18,7 +18,7 @@ class PgLockPgConnectionPooler(config: PgLockPgConfig)
     extends LazyLogging
 {
     private val hikari: HikariDataSource = createDataSourceWithConnectionPool().tap { hikari =>
-        logger.info("hikari: {} is initialized", hikari)
+        logger.debug("Initialized: {}", hikari)
         // TODO: ignore errors?
         if (config.schemaMigration) PgLockPgDatabaseMigrator(config, hikari).migrate()
     }
@@ -39,7 +39,10 @@ class PgLockPgConnectionPooler(config: PgLockPgConfig)
 
     def shutdown(): Unit =
     {
-        try hikari.close()
+        try {
+            hikari.close()
+            logger.debug("Shutdown: {}", hikari)
+        }
         catch {
             case ex: Exception =>
                 throw Throwables.propagate(ex)
