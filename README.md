@@ -96,6 +96,7 @@ s)?\s*`.
         force: true
       ```
 * This plugin close connections in `PgLockPgConnectionPooler#finalize()`, so the number of connections does not necessarily exceed value of **pg_lock.max_pool_size**.
+    * This problem is resolved by [treasure-data/digdag \[feature request\] Lifecycle management plugin interface OR Global resource management plugin interface](https://github.com/treasure-data/digdag/issues/1238)
 
 # Development
 
