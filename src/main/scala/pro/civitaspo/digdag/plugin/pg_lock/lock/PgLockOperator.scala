@@ -5,6 +5,8 @@ import java.util.UUID
 
 import com.typesafe.scalalogging.LazyLogging
 import io.digdag.client.config.{Config, ConfigException, ConfigFactory}
+import io.digdag.client.DigdagClient
+import io.digdag.client.api.Id
 import io.digdag.spi.{OperatorContext, TaskResult}
 import io.digdag.util.{BaseOperator, DurationParam}
 import pro.civitaspo.digdag.plugin.pg_lock.pg.{PgLockPgClient, PgLockPgDao}
@@ -60,6 +62,15 @@ class PgLockOperator(context: OperatorContext,
             .get(s"pg_lock.min_poll_interval", classOf[DurationParam], DurationParam.parse("5s"))
         protected val maxPollInterval: DurationParam = systemConfig
             .get(s"pg_lock.max_poll_interval", classOf[DurationParam], DurationParam.parse("5m"))
+        protected val digdagHost: Option[String] = Option(systemConfig.getOptional("pg_lock.digdag.host", classOf[String]).orNull())
+        protected val digdagPort: Int = systemConfig.get("pg_lock.digdag.port", classOf[Int], 65432)
+        protected val digdagDisableCertValidation: Boolean = systemConfig.get("pg_lock.digdag.disable_cert_validation", classOf[Boolean], false)
+        protected val digdagSsl: Boolean = systemConfig.get("pg_lock.digdag.ssl", classOf[Boolean], true)
+        protected val digdagHeaders: Map[String, String] = systemConfig.getMapOrEmpty("pg_lock.digdag.headers", classOf[String], classOf[String]).asScala.toMap
+        protected val digdagProxySchema: Option[String] = Option(systemConfig.getOptional("pg_lock.digdag.proxy_schema", classOf[String]).orNull())
+        protected val digdagProxyHost: Option[String] = Option(systemConfig.getOptional("pg_lock.digdag.proxy_host", classOf[String]).orNull())
+        protected val digdagProxyPort: Option[Int] = Option(systemConfig.getOptional("pg_lock.digdag.proxy_port", classOf[Int]).orNull())
+
 
         protected val cf: ConfigFactory = request.getConfig.getFactory
         protected val pollingWaiter: PgLockPollingWaiter = PgLockPollingWaiter(
@@ -76,6 +87,7 @@ class PgLockOperator(context: OperatorContext,
             pgClient.transaction { dao =>
                 withAdvisoryLock(dao) {
                     releaseExpiredLocks(dao)
+                    releaseFinishedAttemptLocks(dao)
                     validateLockLimit(dao)
                     waitUntilAffordingLockableCount(dao)
 
@@ -128,6 +140,47 @@ class PgLockOperator(context: OperatorContext,
                 namespaceValue = namespace.getValue,
                 name = name
                 )
+        }
+
+        protected def releaseFinishedAttemptLocks(dao: PgLockPgDao): Unit =
+        {
+            digdagHost.foreach { host =>
+                val digdagClient = DigdagClient.builder()
+                    .host(host)
+                    .port(digdagPort)
+                    .ssl(digdagSsl)
+                    .headers(digdagHeaders.asJava)
+                    .disableCertValidation(digdagDisableCertValidation)
+                    .tap { builder =>
+                        digdagProxySchema.foreach(builder.proxyScheme)
+                        digdagProxyHost.foreach(builder.proxyHost)
+                        digdagProxyPort.foreach(builder.proxyPort)
+                    }
+                    .build()
+                try {
+                    dao.selectDistinctOwnerAttemptsDigdagPgLocks(
+                        namespaceType = namespace.getType,
+                        namespaceValue = namespace.getValue,
+                        name = name
+                        )
+                        .asScala
+                        .foreach { attemptId =>
+                            val attempt = digdagClient.getSessionAttempt(Id.of(attemptId.toString))
+                            if (attempt.getDone) {
+                                logger.info(s"Release the lock because the attempt(id:${attempt.getId},project:${attempt.getProject.getName}," +
+                                                s"workflow:${attempt.getWorkflow.getName},session:${attempt.getSessionUuid.toString}) is already finished.")
+                                dao.deleteOwnedDigdagPgLocks(ownerAttemptId = attemptId)
+                            }
+                        }
+                }
+                catch {
+                    case ex: Throwable =>
+                        logger.warn(s"Failed to release the finished attempt locks because of ${ex.getMessage}", ex)
+                }
+                finally {
+                    digdagClient.close()
+                }
+            }
         }
 
         protected def validateLockLimit(dao: PgLockPgDao): Unit =
