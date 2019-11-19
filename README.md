@@ -73,6 +73,14 @@ s)?\s*`.
 - **pg_lock.schema_migration**: Whether do schema migration or not. (boolean, default: `true`)
 - **pg_loch.schema_migration_history_table**: The table name to write schema migration history. (string, default: `"pg_lock_schema_migrations"`)
 - **pg_lock.hash_seed_for_advisory_lock**: The seed to hash strings with "MurmurHash 3" algorithm for `pg_try_advisory_lock`. (integer, default: `-137723950` (the same as `scala.util.hashing.MurmurHash3.stringSeed`))
+- **pg_lock.digdag.host**: The digdag server host name. If this option is specified, this operator can check the owner attempt status, and then can release locks that a finished task is the owner of. (string, optional)
+- **pg_lock.digdag.port**: The digdag server port. (integer, default: `65432`)
+- **pg_lock.digdag.disable_cert_validation**: Disable the cert validation or not. (boolean, default: `false`)
+- **pg_lock.digdag.ssl**: Use ssl or not. (boolean, default: `true`)
+- **pg_lock.digdag.headers.***: The headers when connecting to the digdag server. You can set multiple values like `pg_lock.digdag.headers.KEY=VALUE`. (string, default: `{}`) 
+- **pg_lock.digdag.proxy_schema**: The digdag proxy schema. (string, optional)
+- **pg_lock.digdag.proxy_host**: The digdag proxy host name. (string, optional) 
+- **pg_lock.digdag.proxy_port**: The digdag proxy port. (integer, optional) 
 
 
 ## Operator configurations
@@ -89,6 +97,7 @@ s)?\s*`.
 
 * When you cancel the tasks inside `_do` of `pg_lock>`, you must wait for the release of the lock until the expiration. So, I recommend you to set the `expire_in` duration as short as possible.
     * This problem is resolved by [treasure-data/digdag \[feature request\] `_canceled` parameter for some cleanup tasks #1226](https://github.com/treasure-data/digdag/issues/1226).
+    * If `pg_lock.digdag.*` propertise are set correctly, this problem is no longer a big problem because this operator can check the owner attempt status, and then can release locks that a finished task is the owner of.
     * You can unlock the lock forcibly by using the internal operator `pg_unlock`. You need to find the lock ID from the log. This operator is used internally, so be careful when using it as changes that are not backward compatible may be made. See the [PgUnlockOperator implementation](./src/main/scala/pro/civitaspo/digdag/plugin/pg_lock/unlock/PgUnlockOperator.scala).
       ```yaml
       +unlock-forcibly:
