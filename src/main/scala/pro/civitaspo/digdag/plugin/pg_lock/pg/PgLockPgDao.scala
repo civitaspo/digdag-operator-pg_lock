@@ -1,7 +1,8 @@
 package pro.civitaspo.digdag.plugin.pg_lock.pg
 
 
-import java.util.UUID
+import java.lang.{Long => JLong}
+import java.util.{UUID, List => JList}
 
 import org.skife.jdbi.v2.sqlobject.{Bind, SqlQuery, SqlUpdate}
 
@@ -49,7 +50,18 @@ trait PgLockPgDao
             " AND expires_on >= now()")
     def selectDistinctLimitCountDigdagPgLocks(@Bind("namespace_type") namespaceType: String,
                                               @Bind("namespace_value") namespaceValue: UUID,
-                                              @Bind("name") name: String): java.util.List[Integer]
+                                              @Bind("name") name: String): JList[Integer]
+
+    @SqlQuery(
+        "SELECT DISTINCT owner_attempt_id" +
+            " FROM digdag_pg_locks" +
+            " WHERE namespace_type = :namespace_type" +
+            " AND namespace_value = :namespace_value" +
+            " AND name = :name" +
+            " AND expires_on >= now()")
+    def selectDistinctOwnerAttemptsDigdagPgLocks(@Bind("namespace_type") namespaceType: String,
+                                                 @Bind("namespace_value") namespaceValue: UUID,
+                                                 @Bind("name") name: String): JList[JLong]
 
     @SqlUpdate(
         "INSERT INTO digdag_pg_locks (" +
@@ -67,6 +79,9 @@ trait PgLockPgDao
                            @Bind("name") name: String,
                            @Bind("limit_count") limitCount: Int,
                            @Bind("expire_in_seconds") expireInSeconds: Long): Int
+
+    @SqlUpdate("DELETE FROM digdag_pg_locks WHERE owner_attempt_id = :owner_attempt_id")
+    def deleteOwnedDigdagPgLocks(@Bind("owner_attempt_id") ownerAttemptId: Long): Unit
 
     @SqlUpdate("DELETE FROM digdag_pg_locks WHERE id = :id AND owner_attempt_id = :owner_attempt_id")
     def deleteOwnedDigdagPgLock(@Bind("id") id: UUID,

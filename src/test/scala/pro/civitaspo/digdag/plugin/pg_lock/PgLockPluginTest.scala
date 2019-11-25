@@ -263,6 +263,9 @@ class PgLockPluginTest
 
                 assert(idxCols.contains("digdag_pg_locks_idx_expires_on"))
                 assert(idxCols.getOrElse("digdag_pg_locks_idx_expires_on", Seq()) === Seq("expires_on"))
+
+                assert(idxCols.contains("digdag_pg_locks_idx_owner_attempt_id"))
+                assert(idxCols.getOrElse("digdag_pg_locks_idx_owner_attempt_id", Seq()) === Seq("owner_attempt_id"))
             }
         }
 
@@ -369,6 +372,9 @@ class PgLockPluginTest
 
                 assert(idxCols.contains("digdag_pg_locks_idx_expires_on"))
                 assert(idxCols.getOrElse("digdag_pg_locks_idx_expires_on", Seq()) === Seq("expires_on"))
+
+                assert(idxCols.contains("digdag_pg_locks_idx_owner_attempt_id"))
+                assert(idxCols.getOrElse("digdag_pg_locks_idx_owner_attempt_id", Seq()) === Seq("owner_attempt_id"))
             }
         }
     }

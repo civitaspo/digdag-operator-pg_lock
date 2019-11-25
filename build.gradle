@@ -21,6 +21,7 @@ repositories {
 
 dependencies {
     compile group: 'io.digdag', name: 'digdag-spi', version: digdagVersion
+    compile group: 'io.digdag', name: 'digdag-client', version: digdagVersion
     compile group: 'io.digdag', name: 'digdag-plugin-utils', version: digdagVersion
 
     // Follow digdag core dependencies. These are used only when compiling.
