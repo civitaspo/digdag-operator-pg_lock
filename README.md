@@ -15,7 +15,7 @@ _export:
     repositories:
       - https://jitpack.io
     dependencies:
-      - pro.civitaspo:digdag-operator-pg_lock:0.0.1.pre3
+      - pro.civitaspo:digdag-operator-pg_lock:0.0.1
 
 +lock-with:
   # Wait during 5m until getting the named lock if another task locks.
