@@ -51,6 +51,8 @@ class PgLockOperator(context: OperatorContext,
         protected val namespace: PgLockNamespace = params
             .get("namespace", classOf[String], "site")
             .pipe(parseNamespace)
+        protected val unlockFinishedAttemptLocks: Boolean = params
+            .get("unlock_finished_attempt_locks", classOf[Boolean], true)
         protected val doConfig: Config = params
             .get("_do", classOf[Config])
 
@@ -144,6 +146,10 @@ class PgLockOperator(context: OperatorContext,
 
         protected def releaseFinishedAttemptLocks(dao: PgLockPgDao): Unit =
         {
+            if (!unlockFinishedAttemptLocks) {
+                logger.info("Skip to release the other locks that other attempts are the owner of because unlock_finished_attempt_locks=false.")
+                return
+            }
             digdagHost.foreach { host =>
                 val digdagClient = DigdagClient.builder()
                     .host(host)
