@@ -90,6 +90,7 @@ s)?\s*`.
 - **expire_in**: The duration that the named lock expires in. (`DurationParam`, default: `"1h"`)
 - **limit**: The limit count of the named locks within the namespace. If the different value is defined in another task, throw `ConfigException`. (integer, default: `1`) 
 - **namespace**: The namespace that the named lock can be unique. The valid values are `"global"`, `"site"`, `"project"`, `"workflow"`, `"session"`, and`"attempt"`. (string, default: `"site"`)
+- **unlock_finished_attempt_locks**: Unlock the other locks having the same namespace and name as you want to lock if the owner attempts of the locks are finished. (boolean, default: `true`)
 - **_do**: The definition of subtasks with the named lock. (config, required) 
 
 

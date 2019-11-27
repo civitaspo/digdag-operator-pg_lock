@@ -455,4 +455,17 @@ class PgLockPluginTest
         assertNamespace(namespace = "attempt")
         assertNamespace(namespace = "test", expectError = true)
     }
+
+    it should "skip unlocking the finished attempt locks if unlock_finished_attempt_locks=false" in {
+        val digString = readResource("/unlock-finished-attempt-locks.dig")
+
+        val status: CommandStatus = digdagRun(
+            projectPath = tmpDir.toPath,
+            configString = defaultSystemConfig,
+            digString = digString
+            )
+
+        assert(status.code === 0)
+        assert(status.log.get.contains("Skip to release the other locks that other attempts are the owner of because unlock_finished_attempt_locks=false."))
+    }
 }
