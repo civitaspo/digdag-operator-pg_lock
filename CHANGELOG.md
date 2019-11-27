@@ -1,3 +1,8 @@
+0.0.2 (2019-11-27)
+==================
+
+* [Enhancement] Add `unlock_finished_attempt_locks` option.
+
 0.0.1 (2019-11-25)
 ==================
 
