@@ -1,5 +1,5 @@
 # digdag-operator-pg_lock
-[![Jitpack](https://jitpack.io/v/pro.civitaspo/digdag-operator-pg_lock.svg)](https://jitpack.io/#pro.civitaspo/digdag-operator-pg_lock) [![CircleCI](https://circleci.com/gh/civitaspo/digdag-operator-pg_lock.svg?style=shield)](https://circleci.com/gh/civitaspo/digdag-operator-pg_lock) [![Digdag](https://img.shields.io/badge/digdag-v0.9.39-brightgreen.svg)](https://github.com/treasure-data/digdag/releases/tag/v0.9.39)
+[![Jitpack](https://jitpack.io/v/pro.civitaspo/digdag-operator-pg_lock.svg)](https://jitpack.io/#pro.civitaspo/digdag-operator-pg_lock) ![Test CI Status Badge](https://github.com/civitaspo/digdag-operator-pg_lock/workflows/Test%20CI/badge.svg) [![Digdag](https://img.shields.io/badge/digdag-v0.9.39-brightgreen.svg)](https://github.com/treasure-data/digdag/releases/tag/v0.9.39)
 
 A digdag plugin to run digdag tasks with locks by PostgreSQL.
 
