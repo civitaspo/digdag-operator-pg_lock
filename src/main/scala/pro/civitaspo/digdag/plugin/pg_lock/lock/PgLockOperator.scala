@@ -68,7 +68,12 @@ class PgLockOperator(context: OperatorContext,
         protected val digdagPort: Int = systemConfig.get("pg_lock.digdag.port", classOf[Int], 65432)
         protected val digdagDisableCertValidation: Boolean = systemConfig.get("pg_lock.digdag.disable_cert_validation", classOf[Boolean], false)
         protected val digdagSsl: Boolean = systemConfig.get("pg_lock.digdag.ssl", classOf[Boolean], true)
-        protected val digdagHeaders: Map[String, String] = systemConfig.getMapOrEmpty("pg_lock.digdag.headers", classOf[String], classOf[String]).asScala.toMap
+        protected val digdagHeaders: Map[String, String] = systemConfig
+            .getKeys
+            .asScala
+            .filter(_.startsWith("pg_lock.digdag.headers."))
+            .map(k => k.replace("pg_lock.digdag.headers.", "") -> systemConfig.get(k, classOf[String]))
+            .toMap
         protected val digdagProxySchema: Option[String] = Option(systemConfig.getOptional("pg_lock.digdag.proxy_schema", classOf[String]).orNull())
         protected val digdagProxyHost: Option[String] = Option(systemConfig.getOptional("pg_lock.digdag.proxy_host", classOf[String]).orNull())
         protected val digdagProxyPort: Option[Int] = Option(systemConfig.getOptional("pg_lock.digdag.proxy_port", classOf[Int]).orNull())
